@@ -57,6 +57,7 @@ public class HttpServer {
     }
 
     public void serverConnection() throws IOException, URISyntaxException {
+        OutputStream outputStream = clientSocket.getOutputStream();
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(
                 new InputStreamReader(
@@ -71,7 +72,7 @@ public class HttpServer {
                 break;
             }
         }
-        outputLine = Handler.get(request);
+        outputLine = Handler.get(request, outputStream);
         out.println(outputLine);
     }
 

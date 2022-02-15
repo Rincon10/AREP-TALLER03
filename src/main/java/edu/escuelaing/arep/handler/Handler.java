@@ -1,13 +1,14 @@
 package edu.escuelaing.arep.handler;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import static edu.escuelaing.arep.server.HttpServer.typesMap;
-import static edu.escuelaing.arep.utils.Constants.PUBLIC;
-import static edu.escuelaing.arep.utils.Constants.RESOURCES_PATH;
+import static edu.escuelaing.arep.utils.Constants.*;
 
 /**
  * @author Iván Camilo Rincón Saavedra
@@ -15,7 +16,6 @@ import static edu.escuelaing.arep.utils.Constants.RESOURCES_PATH;
  * @project App
  */
 public class Handler {
-    private File file;
 
     public Handler() {
     }
@@ -59,16 +59,40 @@ public class Handler {
         return outputLine;
     }
 
-    private static String computeImage(URI resourceURI) {
-        return "";
+    private static String computeImage(URI resourceURI, OutputStream outputStream) {
+        String responseContent;
+        String extensionUri = resourceURI.toString().substring(resourceURI.getPath().lastIndexOf(".") + 1);
+
+        responseContent = "HTTP/1.1 200 OK \r\n"
+                + "Content-Type: " + typesMap.get(extensionUri) + "\r\n"
+                + "\r\n";
+
+        File file = new File(RESOURCES_PATH + resourceURI.getPath());
+        try {
+            BufferedImage bi = ImageIO.read(file);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+            ImageIO.write(bi, extensionUri, byteArrayOutputStream);
+            dataOutputStream.writeBytes(responseContent);
+            dataOutputStream.write(byteArrayOutputStream.toByteArray());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return responseContent;
     }
 
-    private static String computeContentResponse(URI resourceURI) {
+    private static boolean isAnImage(String extensionUri){
+        return extensionUri.equals("png") || extensionUri.equals("jpg")|| extensionUri.equals("jpge");
+    }
+
+    private static String computeContentResponse(URI resourceURI, OutputStream outputStream) {
         String responseContent;
 
         //css, js, jpg, etc..
         String extensionUri = resourceURI.toString().substring(resourceURI.getPath().lastIndexOf(".") + 1);
-        if (extensionUri.equals("png")) return computeImage(resourceURI);// compute an image
+        if (isAnImage(extensionUri)) return computeImage(resourceURI, outputStream);// compute an image
 
         responseContent = "HTTP/1.1 200 OK \r\n"
                 + "Content-Type: " + typesMap.get(extensionUri) + "\r\n"
@@ -87,7 +111,7 @@ public class Handler {
         return responseContent;
     }
 
-    public static String get(ArrayList<String> request) throws URISyntaxException {
+    public static String get(ArrayList<String> request, OutputStream outputStream) throws URISyntaxException {
         String uriContentType;
 
         // In reques.get(0) we hace all the information of the petition
@@ -95,7 +119,7 @@ public class Handler {
         uriContentType = request.get(0).split(" ")[1];
         URI resourceURI = new URI(uriContentType);
         if (resourceURI.getPath().startsWith(PUBLIC)) {
-            return computeContentResponse(resourceURI);
+            return computeContentResponse(resourceURI, outputStream);
         }
 
         return getDefaultResponse();
