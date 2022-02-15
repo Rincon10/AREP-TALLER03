@@ -1,11 +1,7 @@
 package edu.escuelaing.arep.server;
 
-
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.function.BiFunction;
 
 /**
  * @author Iván Camilo Rincón Saavedra
@@ -16,12 +12,12 @@ public class NanoSparkServer {
     private static NanoSparkServer _instance;
     private HttpServer httpServer = new HttpServer();
 
-    public static NanoSparkServer getInstance(){
-        if(_instance == null) _instance = new NanoSparkServer();
+    public static NanoSparkServer getInstance() {
+        if (_instance == null) _instance = new NanoSparkServer();
         return _instance;
     }
 
-    public void start(){
+    public void start() {
         try {
             httpServer.startServer();
         } catch (IOException ioException) {
@@ -30,6 +26,7 @@ public class NanoSparkServer {
             e.printStackTrace();
         }
     }
+
     public static void main(String[] args) {
         NanoSparkServer nanoSparkServer = getInstance();
         nanoSparkServer.start();
