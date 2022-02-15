@@ -1,10 +1,10 @@
 package edu.escuelaing.arep.server;
 
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.BiFunction;
 
 /**
@@ -15,14 +15,24 @@ import java.util.function.BiFunction;
 public class NanoSparkServer {
     private static NanoSparkServer _instance;
     private HttpServer httpServer = new HttpServer();
-    private Map<String, BiFunction<HttpRequest, HttpResponse, String>> actions = new HashMap<>();
 
     public static NanoSparkServer getInstance(){
         if(_instance == null) _instance = new NanoSparkServer();
         return _instance;
     }
 
-    public void get(String path, BiFunction<HttpRequest, HttpResponse, String> biFunction){
-        actions.put(path, biFunction);
+    public void start(){
+        try {
+            httpServer.startServer();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
+    public static void main(String[] args) {
+        NanoSparkServer nanoSparkServer = getInstance();
+        nanoSparkServer.start();
+    }
+
 }

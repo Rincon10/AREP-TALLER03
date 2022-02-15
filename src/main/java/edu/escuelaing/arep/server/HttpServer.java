@@ -1,9 +1,14 @@
 package edu.escuelaing.arep.server;
 
+import edu.escuelaing.arep.handler.Handler;
+
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import static edu.escuelaing.arep.utils.Constants.TYPES;
 
 /**
  * @author Iván Camilo Rincón Saavedra
@@ -15,21 +20,26 @@ public class HttpServer {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
-    private final static Map<String, String> typesMap = new HashMap<String, String>();
-    private final static String[][] types = {{"html", "text/html"}, {"js", "text/javascript"}, {"jpeg", "image/jpeg"}, {"jpg", "image/jpg"}};
+
+    public final static Map<String, String> typesMap = new HashMap<String, String>();
+
+    public HttpServer() {
+        setTypes();
+    }
 
     private void setTypes() {
-        for (String[] type : types) {
+        for (String[] type : TYPES) {
             typesMap.put(type[0], type[1]);
         }
     }
 
-    public void startServer() throws IOException {
+    public void startServer() throws IOException, URISyntaxException {
+        int port = 35000;
         serverSocket = null;
         try {
-            serverSocket = new ServerSocket(35000);
+            serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            System.err.println("Could not listen on port: 35000.");
+            System.err.printf("Could not listen on port: %d.%n", port);
             System.exit(1);
         }
         clientSocket = null;
@@ -39,42 +49,29 @@ public class HttpServer {
 
         serverConnection(clientSocket);
         closeConnection();
-
-
     }
 
-    public void serverConnection(Socket clientSocket) throws IOException {
+    public void serverConnection(Socket clientSocket) throws IOException, URISyntaxException {
         this.clientSocket = clientSocket;
         serverConnection();
     }
 
-    public void serverConnection() throws IOException {
+    public void serverConnection() throws IOException, URISyntaxException {
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(
                 new InputStreamReader(
                         clientSocket.getInputStream()));
         String inputLine, outputLine;
+        ArrayList<String> request = new ArrayList<>();
 
         while ((inputLine = in.readLine()) != null) {
             System.out.println("Received: " + inputLine);
+            request.add(inputLine);
             if (!in.ready()) {
                 break;
             }
         }
-        outputLine = "HTTP/1.1 200 OK\r\n"
-                + "Content-Type: text/html\r\n"
-                + "\r\n"
-                + "<!DOCTYPE html>"
-                + "<html>"
-                + "<head>"
-                + "<meta charset=\"UTF-8\">"
-                + "<title>Title of the document</title>\n"
-                + "</head>"
-                + "<body>"
-                + "My Web Site HOLIUIIIIIIII"
-                + "</body>"
-                + "</html>";
-        System.out.println(outputLine);
+        outputLine = Handler.get(request);
         out.println(outputLine);
     }
 
@@ -84,9 +81,4 @@ public class HttpServer {
         clientSocket.close();
         serverSocket.close();
     }
-
-    public static void main(String[] args) {
-
-    }
-
 }
