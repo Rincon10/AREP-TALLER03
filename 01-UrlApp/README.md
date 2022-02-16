@@ -33,6 +33,8 @@ mvn package
 mvn exec:java -Dexec.mainClass="edu.escuelaing.arep.URLParser"
 ```
 
+<img src="https://github.com/Rincon10/AREP-TALLER03/blob/master/05-resources/img/01-mvnRunning.jpg" />
+
 4. Generando la documentación del proyecto
 ```mvn
 mvn javadoc:javadoc
