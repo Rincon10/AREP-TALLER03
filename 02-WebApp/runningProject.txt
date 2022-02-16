@@ -1,3 +1,5 @@
-mvn archetype:generate -DgroupId=edu.escuelaing.arep -DartifactId=App -DarchetypeArtifactId=maven-archetype-quickstart
+mvn archetype:generate -DgroupId=edu.escuelaing.arep -DartifactId=WebApp -DarchetypeArtifactId=maven-archetype-quickstart 
 
-mvn exec:java -Dexec.mainClass="edu.escuelaing.arep.App"
+We need to replace de URL, to a real url
+
+mvn exec:java -Dexec.mainClass="edu.escuelaing.arep.URLReader" -Dexec.args="https://github.com/Rincon10/AREP-TALLER03"
